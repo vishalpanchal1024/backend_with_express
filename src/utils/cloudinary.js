@@ -26,3 +26,5 @@ const uploadOnCoudinary = async (localFilePath) => {
 	}
 
 }
+
+export { uploadOnCoudinary };
