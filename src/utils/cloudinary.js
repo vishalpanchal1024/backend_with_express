@@ -1,6 +1,5 @@
-import { v2 as cloudinary } from cloudinary;
-import fs from fs;
-
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 cloudinary.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,6 +8,7 @@ cloudinary.config({
 });
 
 const uploadOnCoudinary = async (localFilePath) => {
+
 	try {
 		if (!localFilePath) {
 			return null
@@ -21,10 +21,10 @@ const uploadOnCoudinary = async (localFilePath) => {
 
 		return responce;
 	} catch (error) {
-		fs.unlikeSync(localFilePath);
+		fs.unlinkSync(localFilePath);
 		return null;
 	}
 
 }
 
-export { uploadOnCoudinary };
+export default uploadOnCoudinary;

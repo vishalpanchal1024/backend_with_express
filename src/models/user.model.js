@@ -30,7 +30,7 @@ const userSchema = new Schema({
 		required: true,
 	},
 
-	coverHistory: {
+	coverImage: {
 		type: String,//cloudinary url
 	},
 	watchHistory: [{
@@ -93,4 +93,4 @@ userSchema.methods.generateRefreasToken = function () {
 }
 
 
-export const user = mongoose.model("User", userSchema);
+export const User = mongoose.model("User", userSchema);
