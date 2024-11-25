@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const Options = {
 	httpOnly: true,
@@ -133,8 +134,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 	await User.findByIdAndUpdate(
 		req.user._id,
 		{
-			$set: {
-				refreshToken: undefined
+			$unset: {
+				refreshToken: 1
 			},
 		},
 		{
@@ -232,7 +233,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 	}
 	// TODO delete old Avatar Image and Cover Image
 
-	const user = User.findByIdAndUpdate(req.user?._id,
+	const user = await User.findByIdAndUpdate(req.user?._id,
 		{
 			$set: {
 				avatar: avatar.url
@@ -245,25 +246,31 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 })
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
+
 	const coverImageLocalPath = req.file?.path;
 
 	if (!coverImageLocalPath) {
 		throw new ApiError(400, "Cover Image File is Missing");
 	}
+
 	const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-	if (!avatar.url) {
+	if (!coverImage.url) {
 		throw new ApiError(400, "Error while Uploading on Cover Image");
 	}
 
-	const user = User.findByIdAndUpdate(req.user?._id,
+	const user = await User.findByIdAndUpdate(
+		req.user?._id,
 		{
 			$set: {
-				coverImage: coverImage.url
+				coverImage: coverImage?.url
 			}
 		},
 		{ new: true }).select("-password");
+	console.log(user);
 
-	return res.status(200).json(new ApiResponse(200, user, "CoverImage Image Update Successfully"));
+	return res
+		.status(200)
+		.json(new ApiResponse(200, user, "CoverImage Image Update Successfully"));
 
 })
 

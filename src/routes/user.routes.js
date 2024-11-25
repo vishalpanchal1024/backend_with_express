@@ -29,11 +29,13 @@ router.route("/register").post(upload.fields([{
 router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJwtToken, logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
+
 router.route("/change-password").post(verifyJwtToken, changeCurrentPassword);
 router.route("/current-user").get(verifyJwtToken, getCurrentUser);
 router.route("/update-account").patch(verifyJwtToken, updateAccountDetails);
+
 router.route("/update-avatar").patch(verifyJwtToken, upload.single("avatar"), updateUserAvatar);
-router.route("/update-avatar").patch(verifyJwtToken, upload.single("coverImage"), updateUserCoverImage);
+router.route("/update-cover").patch(verifyJwtToken, upload.single("coverImage"), updateUserCoverImage);
 router.route("/c/:username").get(verifyJwtToken, getUserChannelProfile);
 router.route("/watch-history").get(verifyJwtToken, getUserWatchHistory);
 
