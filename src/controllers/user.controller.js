@@ -11,10 +11,6 @@ const Options = {
 	secure: true
 };
 
-
-
-
-
 const genratesRefreshAndAccessToken = async (userId) => {
 	try {
 		const user = await User.findById(userId);
@@ -111,7 +107,10 @@ const loginUser = asyncHandler(async (req, res) => {
 	const isPasswordCorrect = await user.isPasswordCorrect(password);
 
 	if (!isPasswordCorrect) {
-		throw new ApiError(400, "Invaild User Creadntials");
+		return res.status(300).json(new ApiResponse(300, {
+
+		}, "Invaild User Creadntials"))
+		// throw new ApiError(400, "Invaild User Creadntials");
 	}
 	const { accessToken, refreshToken } = await genratesRefreshAndAccessToken(user._id);
 
