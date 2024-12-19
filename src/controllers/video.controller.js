@@ -110,14 +110,15 @@ const updateVideo = asyncHandler(async (req, res) => {
 	}
 
 	const video = await Video.findById(videoId);
+
 	if (!video) {
 		throw new ApiError(404, "video not found ");
 	}
 
-
 	if (video.owner.toString() !== req.user._id.toString()) {
 		throw new ApiError(403, "You are not allowed to update this video");
 	}
+
 	// if (!video.owner.equals(req.user?._id)) {
 	// 	console.log("8456789876556789876567899874567898765679879", video.owner)
 	// 	console.log("8456789876556789876567899874567898765679879", req.user._id)
@@ -125,7 +126,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 	// }
 
 	const oldThumbnailDelete = await deleteFromCloudinary(video.thumbnail);
-
+	console.log("****************", oldThumbnailDelete);
 	if (oldThumbnailDelete.result !== "ok") {
 		throw new ApiError(400, " error while deleting old thumbnail ");
 	}
@@ -157,10 +158,80 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
 	const { videoId } = req.params
 	//TODO: delete video
+
+	if (!isValidObjectId(videoId)) {
+		throw new ApiError(400, "Invaild video ID");
+	}
+
+	const video = await Video.findById(videoId);
+
+	if (!video) {
+		throw new ApiError(404, "video not found");
+	}
+
+	if (video.owner.toString() !== req.user?._id.toString()) {
+		throw new ApiError(404, "permission denied");
+	}
+
+	const videoFileDelete = await deleteFromCloudinary(video?.videoFile, "video");
+
+	console.log(videoFileDelete);
+
+	if (videoFileDelete.result !== "ok") {
+		throw new ApiError(500, " error while deleting video from clouninary ");
+	}
+
+
+	const thumbnailDelete = await deleteFromCloudinary(video?.thumbnail);
+
+	console.log(thumbnailDelete);
+
+	if (thumbnailDelete.result !== "ok") {
+		throw new ApiError(500, "error while deleting thumbnail from clouninary");
+	}
+
+
+	const deleteVideo = await Video.findOneAndDelete(videoId);
+
+	if (!deleteVideo) {
+		throw new ApiError(404, "video not delete");
+	}
+
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, {}, "Video delete succsessfully."));
+
+
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
-	const { videoId } = req.params
+	const { videoId } = req.params;
+
+	if (!isValidObjectId(videoId)) {
+		throw new ApiError(400, "Invaild video ID");
+	}
+
+	const video = await Video.findById(videoId);
+
+	if (!video) {
+		throw new ApiError(404, "video not found");
+	}
+
+	if (video.owner.toString() !== req.user?._id.toString()) {
+		throw new ApiError(404, "permission denied");
+	}
+	const updatedPublishedStatus = await Video.findByIdAndUpdate(videoId, {
+		$set: {
+
+			isPublished: !video.isPublished
+		}
+
+	}, { new: true })
+
+	return res
+		.status(200)
+		.json(new ApiResponse(200, updatedPublishedStatus, "video published status change succsessfully"));
 })
 
 export {
